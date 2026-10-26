@@ -47,7 +47,7 @@ public class UrlShortenerServiceTests {
     @Test
     void shorten_WithCustomAlias_ReturnsCustomAlias() {
         var request = new ShortenUrlRequest();
-        request.setFullUrl("https://example.com");
+        request.setFullUrl("https://example.com/");
         request.setCustomAlias("my-alias");
 
         ShortenUrlResponse response = service.shorten(request, BASE_URL);
@@ -59,7 +59,7 @@ public class UrlShortenerServiceTests {
     @Test
     void whenShorten_withCustomAlias_TrimsAlias() {
         var request = new ShortenUrlRequest();
-        request.setFullUrl("https://example.com");
+        request.setFullUrl("https://example.com/");
         request.setCustomAlias("  trimmed-alias  ");
 
         ShortenUrlResponse response = service.shorten(request, BASE_URL);
@@ -113,7 +113,7 @@ public class UrlShortenerServiceTests {
     @Test
     void whenShorten_withInvalidAliasCharacters_throwsIllegalArgumentException() {
         var request = new ShortenUrlRequest();
-        request.setFullUrl("https://example.com");
+        request.setFullUrl("https://example.com/");
         request.setCustomAlias("bad_alias!");
 
         IllegalArgumentException exception = assertThrows(
@@ -128,7 +128,7 @@ public class UrlShortenerServiceTests {
     @Test
     void whenShorten_withAliasTooShort_throwsIllegalArgumentException() {
         var request = new ShortenUrlRequest();
-        request.setFullUrl("https://example.com");
+        request.setFullUrl("https://example.com/");
         request.setCustomAlias("a");
 
         IllegalArgumentException exception = assertThrows(
@@ -163,7 +163,7 @@ public class UrlShortenerServiceTests {
     @Test
     void getFullUrl_ReturnsExistingUrl() throws ExecutionException, InterruptedException {
         var request = new ShortenUrlRequest();
-        request.setFullUrl("https://example.com");
+        request.setFullUrl("https://example.com/");
         request.setCustomAlias("example");
         service.shorten(request, BASE_URL);
 
@@ -221,16 +221,19 @@ public class UrlShortenerServiceTests {
 
     @Test
     void whenGetAll_withNegativePage_returnError() {
-        // need to implement
-    }
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.getAll(BASE_URL, Pageable.ofSize(5).withPage(-1))
+        );
 
-    @Test
-    void whenGetAll_withOver10_returnError() {
-        // need to implement
+        assertEquals("Page index must not be less than zero", exception.getMessage());
     }
 
     @Test
     void whenGetAll_withNoList_returnEmptyList() {
-        // need to implement
+        var response = service.getAll(BASE_URL, pageable);
+
+        assertNotNull(response);
+        assertTrue(response.isEmpty());
     }
 }

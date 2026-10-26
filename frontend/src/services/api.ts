@@ -27,8 +27,12 @@ export const api = {
     }).then((r) => handleResponse<ShortenUrlResponse>(r));
   },
 
-  listAll(): Promise<UrlListItem[]> {
-    return fetch(`${API_BASE}/urls`).then((r) => handleResponse<UrlListItem[]>(r));
+  listAll(page: number, size: number): Promise<UrlListItem[]> {
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    })
+    return fetch(`${API_BASE}/urls?${params.toString()}`).then((r) => handleResponse<UrlListItem[]>(r));
   },
 
   delete(alias: string): Promise<void> {

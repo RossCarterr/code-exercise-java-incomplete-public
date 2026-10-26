@@ -1,32 +1,23 @@
-## Coding Assessment Tasks
-
-### Intro
-This is a URL shortener that has been created by a junior engineer. Your task is to review the solution, check that it works, and find any errors they may have made, as well as complete the fixes and TODOs listed below.
-
-This solution has been pre-seeded with data in the database already.
-
-Note that these are not necessarily in the order you will need to address them.
-
-### Fixes
-
-- **Fix Delete Behavior:** The client has reported strange behavior when clicking on delete on a URL. Investigate and fix the issue.
-- **Generate Alias:** Implement the `generateAlias` function.
-- **UI Implementation:** Build out the UI to display the URLs on the main page.
-
-### TODO
-
-- Add paging for retrieval of the URLs.
-- Sort URLs by their creation date.
-- Create the Docker commands to run the solution.
-- Replace this README with an appropriate one.
-
----
-
 # Snip – URL Shortener
 
 A full-stack URL shortener built with **Java Spring Boot** (backend) and **React + TypeScript** (frontend), containerized with Docker.
 
+The application allows users to create shortened URLs, optionally choose custom aliases, view existing shortened URLs, page through results, and delete URLs.
+
 ---
+
+## Features
+
+- Create shortened URLs from long destination URLs
+- Optional custom aliases
+- Automatic random alias generation when no custom alias is provided
+- Redirect short URLs to their original destination
+- Display shortened URLs in the UI
+- Delete shortened URLs
+- Retrieve URLs with pagination
+- Sort URLs by creation date, newest first
+- Persist data using SQLite
+- Run the full application locally with Docker Compose
 
 ## Architecture
 
@@ -37,6 +28,26 @@ docker-compose.yml       Orchestrates both services
 ```
 
 The frontend proxies API calls through Nginx in production, so there are no CORS concerns once containerized. In development, Vite's dev server proxies to the local API.
+
+---
+
+## Running the Application with Docker
+
+From the project root, run:
+```
+docker-compose up --build -d
+```
+
+Once the containers are running, open:
+```
+Frontend: http://localhost:3000
+Backend: http://localhost:8080
+```
+
+To stop the application:
+```
+docker-compose down
+```
 
 ---
 
@@ -71,6 +82,7 @@ The API exposes the same contract expected by the existing frontend.
 Returns `400` if the URL is invalid, the alias is malformed, or the alias is already taken.
 
 ### GET /urls
+If you require paging please use: GET /urls?page=0&size=5
 
 ```json
 // Response 200
@@ -99,7 +111,7 @@ Returns `204 No Content` on success, `404` if alias not found.
 
 **Alias validation** - Aliases must be 2-64 characters, containing only letters, numbers, and hyphens. This mirrors typical URL shortener conventions and avoids characters that are awkward in URLs.
 
-**Random alias generation** - 
+**Random alias generation** - Random alias generation is seven characters long, using upper and lower case letters and numbers.
 
 **Error handling** - Invalid input and domain errors are translated into JSON error responses like `{ "error": "..." }`.
 

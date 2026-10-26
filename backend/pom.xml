@@ -19,6 +19,8 @@
         <java.version>17</java.version>
     </properties>
 
+    <!-- A lot of these have vulernabilities so if this was going to prod I would updatign to patched version
+     OR fixing / mitigating the issues. As it is a tech test I have left them to focus on the TO DO and fixes -->
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -41,6 +43,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
         </dependency>
     </dependencies>
 

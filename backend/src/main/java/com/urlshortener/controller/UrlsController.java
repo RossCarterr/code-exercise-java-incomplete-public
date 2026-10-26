@@ -6,15 +6,12 @@ import com.urlshortener.model.UrlListItem;
 import com.urlshortener.service.UrlShortenerService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Pageable;
 import java.net.URI;
 import java.util.List;
 
@@ -29,16 +26,24 @@ public class UrlsController {
     }
 
     @PostMapping("/shorten")
-    public ResponseEntity<Void> shorten(
+    public ResponseEntity<ShortenUrlResponse> shorten(
             @Valid @RequestBody ShortenUrlRequest request,
             HttpServletRequest requestContext) {
-        return ResponseEntity.ok().build();
+
+        var baseUrl = getBaseUrl(requestContext);
+        var shortenedUrl = service.shorten(request, baseUrl);
+
+        return ResponseEntity
+                .created(URI.create(shortenedUrl.getShortUrl()))
+                .body(shortenedUrl);
     }
 
     @GetMapping("/urls")
-    public List<UrlListItem> getAll(HttpServletRequest requestContext) {
+    public List<UrlListItem> getAll(
+            @PageableDefault(size = 5) Pageable pageable,
+            HttpServletRequest requestContext) {
         var baseUrl = getBaseUrl(requestContext);
-        return service.getAll(baseUrl);
+        return service.getAll(baseUrl, pageable);
     }
 
     @GetMapping("/{alias}")
@@ -50,6 +55,8 @@ public class UrlsController {
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(fullUrl)).build();
     }
 
+    // Note: I would change this to a delete e.g. /urls/{alias} so the /{alias} isn't root level
+    // I kept it like this as there could be a business reason for this setup but would suggest above
     @DeleteMapping("/{alias}")
     public ResponseEntity<Void> delete(@PathVariable String alias) {
         var deleted = service.delete(alias);

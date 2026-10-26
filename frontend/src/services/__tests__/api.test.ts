@@ -42,9 +42,9 @@ describe('api service', () => {
       json: async () => [],
     } as Response);
 
-    await api.listAll();
+    await api.listAll(0, 6);
 
-    expect(fetch).toHaveBeenCalledWith('/urls');
+    expect(fetch).toHaveBeenCalledWith('/urls?page=0&size=6');
   });
 
   it('delete sends DELETE to /{alias}', async () => {
@@ -57,6 +57,18 @@ describe('api service', () => {
     await api.delete('my-alias');
 
     expect(fetch).toHaveBeenCalledWith('/my-alias', expect.objectContaining({ method: 'DELETE' }));
+  });
+
+  it('delete encodes aliases in the URL', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 204,
+      json: async () => undefined,
+    } as Response);
+
+    await api.delete('my alias');
+
+    expect(fetch).toHaveBeenCalledWith('/my%20alias', expect.objectContaining({ method: 'DELETE' }));
   });
 
   it('delete throws on 404', async () => {

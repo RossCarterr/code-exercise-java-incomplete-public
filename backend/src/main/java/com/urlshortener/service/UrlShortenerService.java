@@ -6,6 +6,7 @@ import com.urlshortener.model.UrlListItem;
 import com.urlshortener.repository.ShortenedUrlRepository;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Pageable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
@@ -18,6 +19,7 @@ public class UrlShortenerService {
 
     private static final String ALIAS_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int GENERATED_ALIAS_LENGTH = 7;
+    private static final int MAX_ALIAS_GENERATION_ATTEMPTS = 5;
 
     private final ShortenedUrlRepository repository;
 
@@ -48,25 +50,33 @@ public class UrlShortenerService {
         return repository.findFullUrlByAlias(alias).orElse(null);
     }
 
-    public List<UrlListItem> getAll(String baseUrl) {
-        return repository.findAll(baseUrl);
+    public List<UrlListItem> getAll(String baseUrl, Pageable pageable) {
+        return repository.findAll(baseUrl, pageable);
     }
 
     public boolean delete(String alias) {
-        // TODO: Investigate odd delete behavior reported by clients.
-        var fullUrl = repository.findFullUrlByAlias(alias).orElse(null);
-        if (fullUrl == null) {
+        if (repository.findFullUrlByAlias(alias).orElse(null) == null) {
             return false;
         }
-
-        repository.save(alias + "-deleted", fullUrl, Instant.now());
-        repository.deleteByAlias(alias + "-deleted");
-        return true;
+        return repository.deleteByAlias(alias);
     }
 
-    private static String generateAlias() {
-        // TODO: Implement alias generation.
-        return "";
+    private String generateAlias() {
+        // Generate a random alias using characters from ALIAS_CHARS.
+        // If the alias is already taken, retry up to 5 times before failing.
+        // Note for test: I did think about using UUID, but for this case on shortening the URL, it was better this way.
+        // Also I did 5 retries, but for future improvement, consider increasing the number of retries depending on the load.
+        for (int attempt = 0; attempt < MAX_ALIAS_GENERATION_ATTEMPTS; attempt++) {
+            var alias = ThreadLocalRandom.current()
+                    .ints(GENERATED_ALIAS_LENGTH, 0, ALIAS_CHARS.length())
+                    .mapToObj(ALIAS_CHARS::charAt)
+                    .map(String::valueOf)
+                    .collect(Collectors.joining());
+            if (!repository.existsByAlias(alias)) {
+                return alias;
+            }
+        }
+        throw new IllegalStateException("Unable to generate a unique alias.");
     }
 
     private static boolean isValidAlias(String alias) {

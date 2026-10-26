@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.domain.Pageable;
 import java.sql.ResultSet;
 import java.time.Instant;
 import java.util.List;
@@ -50,9 +51,10 @@ public class ShortenedUrlRepository {
         return results.stream().findFirst();
     }
 
-    public List<UrlListItem> findAll(String baseUrl) {
-        return jdbc.query("SELECT alias, full_url FROM shortened_urls",
-                urlListItemMapper(baseUrl));
+    public List<UrlListItem> findAll(String baseUrl, Pageable pageable) {
+        return jdbc.query(
+                "SELECT alias, full_url FROM shortened_urls ORDER BY created_at DESC LIMIT ? OFFSET ?",
+                urlListItemMapper(baseUrl), pageable.getPageSize(), pageable.getOffset());
     }
 
     public boolean deleteByAlias(String alias) {

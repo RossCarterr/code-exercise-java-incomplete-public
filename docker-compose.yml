@@ -1,0 +1,27 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: url-shortener-backend
+    environment:
+      DATABASE_PATH: /data/urlshortener.db
+      SERVER_PORT: 8080
+    volumes:
+      - ./urlshortener.db:/data/urlshortener.db
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      default:
+        aliases:
+          - api
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: url-shortener-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    restart: unless-stopped

@@ -57,15 +57,19 @@ export function UrlTable({
 
                       <td>
                         <a
-                            href={url.fullUrl}>
+                            href={url.fullUrl}
+                            target="_blank"
+                            rel="noopener noreferrer">
                             {url.fullUrl}
                         </a>
                       </td>
 
                       <td>
                         <a
-                            href={url.shortUrl}>
-                            {url.shortUrl}
+                            href={url.shortUrl}
+                            target="_blank"
+                            rel="noopener noreferrer">
+                          {url.shortUrl}
                         </a>
                       </td>
 

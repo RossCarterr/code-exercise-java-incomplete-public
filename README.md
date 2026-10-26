@@ -118,3 +118,15 @@ Returns `204 No Content` on success, `404` if alias not found.
 **Testing** - The backend includes service-level tests and can be extended with integration tests. The frontend includes React component tests and service-level API tests.
 
 **Frontend** - The hosted frontend uses Nginx to proxy `/shorten`, `/urls`, and alias requests to the API, so the same Docker setup works without CORS issues.
+
+## Production considerations
+
+For a production deployment I would additionally:
+- run dependency vulnerability scanning as part of CI.
+- upgrade or mitigate any flagged dependencies.
+- move persistence configuration out of local SQLite defaults.
+- add authentication/authorization if URL management is not intended to be public.
+- add rate limiting to prevent abuse.
+- add logging and monitoring.
+- dependant on the volume of traffic, make the random alias generation more efficient.
+- setting up configuration for different environments so you can switch between dev, staging, and production.

@@ -19,8 +19,6 @@
         <java.version>17</java.version>
     </properties>
 
-    <!-- A lot of these have vulernabilities so if this was going to prod I would updatign to patched version
-     OR fixing / mitigating the issues. As it is a tech test I have left them to focus on the TO DO and fixes -->
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
